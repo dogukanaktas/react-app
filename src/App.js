@@ -1,87 +1,41 @@
-import React from "react";
-import "./App.css";
-import axios from "axios";
-import { useState, useEffect } from "react";
-import LineChart from './LineChart';
-import BarChart from './BarChart';
-import "./index.css";
-import "./App.css";
+import React from 'react';
 
-const App = () => {
-  const [countries, SetCountries] = useState([]);
-  const [cases, SetCases] = useState();
-  const [global, SetGlobal] = useState();
-  const [countryName, SetCountryName] = useState();
- 
-  const urlGlobal = "https://covid19.mathdro.id/api/";
-  const urlCountries = "https://covid19.mathdro.id/api/countries/";
+import { Cards, CountryPicker, Chart } from './components';
+import { fetchData } from './api/';
+import styles from './App.module.css';
 
-  useEffect(() => {
-    axios.get(urlGlobal).then((res) => SetGlobal(res.data));
-    axios.get(urlCountries).then((res) => SetCountries(res.data.countries));
-  }, []);
+import image from './images/image.png';
 
-  const showCases = (e) => {
-    const urlCases = `https://covid19.mathdro.id/api/countries/${e.target.value}`;
-    axios.get(urlCases).then((res) => SetCases(res.data));
-    SetCountryName(e.target.value);
-  };
+class App extends React.Component {
+  state = {
+    data: {},
+    country: '',
+  }
 
+  async componentDidMount() {
+    const data = await fetchData();
 
-  return (
-    <div>
-      {/* {console.log("cases", cases)}
-      {console.log("global", global)} */}
+    this.setState({ data });
+  }
 
-      <div className="caseContainer">
-        <div className="card">
-          <p>Infected</p>
-          <p>
-            {cases ? cases.confirmed.value : global && global.confirmed.value}
-          </p>
-          <p>{global && global.lastUpdate}</p>
-          <p>Number of active cases of COVID-19</p>
-        </div>
+  handleCountryChange = async (country) => {
+    const data = await fetchData(country);
 
-        <div className="card">
-          <p>Recovered</p>
-          <p>
-            {cases ? cases.recovered.value : global && global.recovered.value}
-          </p>
-          <p>{global && global.lastUpdate}</p>
-          <p>Number of recoveries from COVID-19</p>
-        </div>
+    this.setState({ data, country: country });
+  }
 
-        <div className="card">
-          <p>Deaths</p>
-          <p>{cases ? cases.deaths.value : global && global.deaths.value}</p>
-          <p>{global && global.lastUpdate}</p>
-          <p>Number of deaths caused by COVID-19</p>
-        </div>
+  render() {
+    const { data, country } = this.state;
+
+    return (
+      <div className={styles.container}>
+        <img className={styles.image} src={image} alt="COVID-19" />
+        <Cards data={data} />
+        <CountryPicker handleCountryChange={this.handleCountryChange} />
+        <Chart data={data} country={country} /> 
       </div>
-
-      <div className="selectContainer">
-        <select
-          className="dropdown"
-          name="countries"
-          onChange={(e) => showCases(e)}
-        >
-          {countries.map((val, i) => (
-            <option key={i} value={val.name}>
-              {val.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <LineChart />
-      </div>
-      <div>
-      <BarChart countryName={countryName} cases={cases} />
-      </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 export default App;
