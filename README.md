@@ -1,4 +1,4 @@
-In this project, user can view data of covid 19 infected, recovered and deaths counts. User can view the data of any country. 
+In this project, user can view data of covid 19 infected, recovered and deaths counts. User can view the data of any country.
 
 > [Live Site](https://react-covid19-tracker-app.netlify.app/ "Go to the React Covid-19 Tracker")
 
